@@ -4,6 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './core/auth/auth.module';
+import { UsersModule } from './core/users/users.module';
 
 @Module({
   imports: [
@@ -17,7 +19,9 @@ import { AppService } from './app.service';
       database: process.env.POSTGRES_DATABASE,
       autoLoadEntities: true,
       synchronize: true // shouldn't be used in production - may lose data
-    })
+    }),
+    AuthModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService]
