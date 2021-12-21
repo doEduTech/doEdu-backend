@@ -30,7 +30,7 @@ export class AuthService {
     return this.usersService.create(email, rawPassword);
   }
 
-  async login(user: any) {
+  async login(user: any): Promise<{ access_token: string }> {
     const payload = { email: user.email, id: user.id };
 
     return {

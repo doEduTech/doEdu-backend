@@ -16,12 +16,14 @@ export class UsersService {
   ) {}
 
   async create(email: string, password: string): Promise<UserEntity> {
+    // TODO: handle exeption of duplicated email
     const user = new UserEntity();
 
     user.email = email;
     user.password = await hash(password, authConstants.saltOrRounds);
+    const savedUser = await this.userRepository.save(user); // TODO: This contains property 'password' with hashed password as a value;
 
-    return await this.userRepository.save(user);
+    return savedUser;
   }
 
   async findOneByUsername(username: string): Promise<IUser | undefined> {

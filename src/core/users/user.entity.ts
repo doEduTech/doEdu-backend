@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Role } from './role.enum';
+import { ERole } from './role.enum';
 
 @Entity('user')
 export class UserEntity {
@@ -19,6 +19,6 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'enum', enum: Role, nullable: true })
-  role: Role;
+  @Column({ type: 'enum', enum: ERole, nullable: true })
+  role: ERole;
 }
