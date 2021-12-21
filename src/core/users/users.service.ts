@@ -15,7 +15,7 @@ export class UsersService {
     private userRepository: Repository<UserEntity>
   ) {}
 
-  async create(email: string, password: string): Promise<UserEntity> {
+  public async create(email: string, password: string): Promise<UserEntity> {
     // TODO: handle exeption of duplicated email
     const user = new UserEntity();
 
@@ -26,11 +26,11 @@ export class UsersService {
     return savedUser;
   }
 
-  async findOneByUsername(username: string): Promise<IUser | undefined> {
+  public async findOneByUsername(username: string): Promise<IUser | undefined> {
     return await this.userRepository.findOne({ where: { username } });
   }
 
-  async findOneWithPasswordByEmail(email: string): Promise<IUser | undefined> {
+  public async findOneWithPasswordByEmail(email: string): Promise<IUser | undefined> {
     return await this.userRepository.findOne(
       { email },
       {
@@ -39,7 +39,7 @@ export class UsersService {
     );
   }
 
-  async findOneById(id: string): Promise<IUser | undefined> {
+  public async findOneById(id: string): Promise<IUser | undefined> {
     return this.userRepository.findOne(id);
   }
 }

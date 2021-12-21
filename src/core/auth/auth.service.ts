@@ -12,7 +12,10 @@ export class AuthService {
 
   async validateUser(email: string, rawPassword: string): Promise<IUser> {
     const dbUser = await this.usersService.findOneWithPasswordByEmail(email);
-    const credentialsExcepionConfig = { status: HttpStatus.FORBIDDEN, error: 'Invalid Credentials' };
+    const statusForbidden = new HttpException(
+      { status: HttpStatus.FORBIDDEN, error: 'Invalid Credentials' },
+      HttpStatus.FORBIDDEN
+    );
 
     if (dbUser) {
       const doesPasswordsMatch = await compare(rawPassword, dbUser.password);
@@ -20,9 +23,9 @@ export class AuthService {
         const { password, ...result } = dbUser;
         return result;
       }
-      throw new HttpException(credentialsExcepionConfig, HttpStatus.FORBIDDEN);
+      throw statusForbidden;
     } else {
-      throw new HttpException(credentialsExcepionConfig, HttpStatus.FORBIDDEN);
+      throw statusForbidden;
     }
   }
 
