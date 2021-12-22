@@ -25,4 +25,12 @@ export class AuthController {
       throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('set-role')
+  @HttpCode(200)
+  async setRole(@Request() req, @Body() body): Promise<{ access_token: string }> {
+    const role = body.role;
+    return this.authService.setRole(req.user, role);
+  }
 }

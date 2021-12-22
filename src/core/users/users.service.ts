@@ -1,3 +1,4 @@
+import { ERole } from './role.enum';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -41,5 +42,11 @@ export class UsersService {
 
   public async findOneById(id: string): Promise<IUser | undefined> {
     return this.userRepository.findOne(id);
+  }
+
+  public async setRole(id: string, role: ERole): Promise<IUser | undefined> {
+    const toUpdate = await this.userRepository.findOne(id);
+    const updated = Object.assign(toUpdate, { role });
+    return await this.userRepository.save(updated);
   }
 }
