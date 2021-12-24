@@ -19,11 +19,7 @@ export class AuthController {
   @UseGuards(NoJwtGuard)
   @Post('register')
   async register(@Body() body) {
-    try {
-      await this.authService.register(body.email, body.password);
-    } catch (e) {
-      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    await this.authService.register(body.email, body.password);
   }
 
   @UseGuards(JwtAuthGuard)

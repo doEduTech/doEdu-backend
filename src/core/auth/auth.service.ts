@@ -1,9 +1,9 @@
-import { ERole } from './../users/role.enum';
-import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { compare } from 'bcrypt';
 
+import { ERole } from './../users/role.enum';
 import { IUser } from './../users/user.interface';
 import { UsersService } from '../users/users.service';
 
