@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { apiClient, passphrase, cryptography } from '@liskhq/lisk-client';
 import { APIClient } from '@liskhq/lisk-api-client/dist-node/api_client';
 
+import { IUser } from './../core/users/user.interface';
+import { AuthService } from './../core/auth/auth.service';
 import { UsersService } from './../core/users/users.service';
 import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.interfaces';
 
@@ -10,7 +12,7 @@ import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.
 export class BlockchainService {
   private client: APIClient;
 
-  constructor(private usersService: UsersService) {
+  constructor(private usersService: UsersService, private authService: AuthService) {
     this.setClient();
   }
 
@@ -23,25 +25,29 @@ export class BlockchainService {
     return JSON.stringify(passphrase.Mnemonic.generateMnemonic());
   }
 
-  public async initializeAccount(userId: string, passphrase: string): Promise<IBlockchainAccountCredentials> {
+  public async initializeAccount(
+    user: IUser,
+    passphrase: string
+  ): Promise<IBlockchainAccountCredentials & { access_token: string }> {
     const rawAddress = cryptography.getAddressFromPassphrase(passphrase);
     const address = cryptography.bufferToHex(rawAddress);
     const { privateKey, publicKey } = cryptography.getPrivateAndPublicKeyFromPassphrase(passphrase);
     const humanReadableAddress = cryptography.getBase32AddressFromAddress(rawAddress);
 
-    await this.updateUserBlockchainAddress(userId, address);
+    await this.updateUserBlockchainAddress(user.id, address);
 
     return {
       publicKey: cryptography.bufferToHex(publicKey),
       privateKey: cryptography.bufferToHex(privateKey),
       address,
-      humanReadableAddress
+      humanReadableAddress,
+      access_token: this.authService.generateAccessToken({ ...user, blockchainAddress: address })
     };
   }
 
   private async setClient(): Promise<void> {
-    const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;
     if (!this.client) {
+      const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;
       this.client = await apiClient.createIPCClient(blockchainConfigPath);
     }
   }

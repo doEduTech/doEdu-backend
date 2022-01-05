@@ -1,4 +1,4 @@
-import { Controller, Request, Post, UseGuards, Body, HttpCode } from '@nestjs/common';
+import { Controller, Request, Post, UseGuards, Body, HttpCode, Put } from '@nestjs/common';
 
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
@@ -23,7 +23,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('set-role')
+  @Put('set-role')
   @HttpCode(200)
   async setRole(@Request() req, @Body() body): Promise<{ access_token: string }> {
     const role = body.role;

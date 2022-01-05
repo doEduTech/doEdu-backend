@@ -35,7 +35,7 @@ export class UsersService {
     return await this.userRepository.findOne(
       { email },
       {
-        select: ['id', 'username', 'email', 'password', 'role']
+        select: ['id', 'username', 'email', 'password', 'role', 'blockchainAddress']
       }
     );
   }
