@@ -49,4 +49,13 @@ export class UsersService {
     const updated = Object.assign(toUpdate, { role });
     return await this.userRepository.save(updated);
   }
+
+  public async setBlockchainAddress(userId: string, blockchainAddress: string): Promise<IUser | undefined> {
+    const toUpdate = await this.userRepository.findOne(userId);
+    if (!toUpdate.blockchainAddress) {
+      const updated = Object.assign(toUpdate, { blockchainAddress });
+      return await this.userRepository.save(updated);
+    }
+    return toUpdate;
+  }
 }

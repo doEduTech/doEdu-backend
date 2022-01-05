@@ -7,6 +7,7 @@ POSTGRES_USER=user_name
 POSTGRES_PASSWORD=user_password
 POSTGRES_DATABASE=database_name
 JWT_SECRET='thisshouldstaysecret"
+BLOCKCHAIN_CONFIG_PATH=~/.lisk/doedu-blockchain
 
 ```
 

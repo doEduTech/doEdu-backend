@@ -13,6 +13,9 @@ export class UserEntity {
   @Column({ nullable: true })
   username: string;
 
+  @Column({ nullable: true })
+  blockchainAddress: string;
+
   @Column({ select: false })
   password: string;
 
