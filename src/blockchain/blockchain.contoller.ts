@@ -1,6 +1,6 @@
 import { Request, Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
 
+import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
 import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.interfaces';
 import { BlockchainService } from './blockchain.service';
 
