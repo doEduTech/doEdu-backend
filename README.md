@@ -6,7 +6,8 @@ POSTGRES_PORT=5432 or 5433 (most probably)
 POSTGRES_USER=user_name
 POSTGRES_PASSWORD=user_password
 POSTGRES_DATABASE=database_name
-JWT_SECRET='thisshouldstaysecret"
+JWT_SECRET=this_should_stay_secret
+BLOCKCHAIN_CONFIG_PATH=~/.lisk/doedu-blockchain
 
 ```
 

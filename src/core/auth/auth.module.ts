@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
-import { JwtStrategy } from './jwt.strategy';
-import { UsersModule } from 'src/core/users/users.module';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './local.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
 
+@Global()
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -16,7 +16,6 @@ import { AuthController } from './auth.controller';
         signOptions: { expiresIn: '120m' }
       })
     }),
-    UsersModule,
     PassportModule
   ],
   controllers: [AuthController],

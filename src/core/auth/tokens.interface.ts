@@ -5,4 +5,5 @@ export interface IAccessTokenPayload {
   exp: number;
   username?: string;
   role?: string;
+  blockchainAddress?: string;
 }

@@ -43,11 +43,14 @@ export class AuthService {
     return this.usersService.create(email, rawPassword);
   }
 
-  async login(user: any): Promise<{ access_token: string }> {
-    const payload = { email: user.email, id: user.id, role: user.role };
-
+  async login(user: IUser): Promise<{ access_token: string }> {
     return {
-      access_token: this.jwtService.sign(payload)
+      access_token: this.generateAccessToken(user)
     };
+  }
+
+  public generateAccessToken(user: IUser): string {
+    const payload = { email: user.email, id: user.id, role: user.role, blockchainAddress: user.blockchainAddress };
+    return this.jwtService.sign(payload);
   }
 }
