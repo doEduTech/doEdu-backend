@@ -25,6 +25,13 @@ export class BlockchainService {
     return JSON.stringify(passphrase.Mnemonic.generateMnemonic());
   }
 
+  public async getFaucetTokens(address: string): Promise<void> {
+    await this.client.invoke('faucet:fundTokens', {
+      address,
+      tokens: 500
+    });
+  }
+
   public async initializeAccount(
     user: IUser,
     passphrase: string
