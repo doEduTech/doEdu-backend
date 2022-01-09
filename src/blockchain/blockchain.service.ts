@@ -31,9 +31,13 @@ export class BlockchainService {
     }
 
     const rawTx = {
-      moduleName: 'token',
-      assetName: 'transfer',
-      asset: { amount: transactions.convertLSKToBeddows('10'), recipientAddress: address, data: 'faucet' }
+      moduleID: 2,
+      assetID: 0,
+      asset: {
+        amount: BigInt(transactions.convertLSKToBeddows('10')),
+        recipientAddress: Buffer.from(address, 'hex'),
+        data: 'faucet'
+      }
     };
     const minFee = this.client.transaction.computeMinFee(rawTx);
 
