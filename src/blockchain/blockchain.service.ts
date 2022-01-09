@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { apiClient, passphrase, cryptography } from '@liskhq/lisk-client';
+import { apiClient, passphrase, cryptography, transactions } from '@liskhq/lisk-client';
 import { APIClient } from '@liskhq/lisk-api-client/dist-node/api_client';
 
 import { IUser } from './../core/users/user.interface';
@@ -26,10 +26,20 @@ export class BlockchainService {
   }
 
   public async getFaucetTokens(address: string): Promise<void> {
-    await this.client.invoke('faucet:fundTokens', {
-      address,
-      tokens: 500
-    });
+    if (!process.env.DEDU_FAUCET_PASSPHRASE) {
+      throw new Error('DEDU Faucet service is not enabled.');
+    }
+
+    const rawTx = {
+      moduleName: 'token',
+      assetName: 'transfer',
+      asset: { amount: transactions.convertLSKToBeddows('10'), recipientAddress: address, data: 'faucet' }
+    };
+    const minFee = this.client.transaction.computeMinFee(rawTx);
+
+    await this.client.transaction.send(
+      await this.client.transaction.create({ ...rawTx, fee: minFee }, process.env.DEDU_FAUCET_PASSPHRASE)
+    );
   }
 
   public async initializeAccount(
