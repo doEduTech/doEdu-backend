@@ -39,10 +39,9 @@ export class BlockchainService {
         data: 'faucet'
       }
     };
-    const minFee = this.client.transaction.computeMinFee(rawTx);
 
     await this.client.transaction.send(
-      await this.client.transaction.create({ ...rawTx, fee: minFee }, process.env.DEDU_FAUCET_PASSPHRASE)
+      await this.client.transaction.create({ ...rawTx, fee: BigInt(999999) }, process.env.DEDU_FAUCET_PASSPHRASE)
     );
   }
 
