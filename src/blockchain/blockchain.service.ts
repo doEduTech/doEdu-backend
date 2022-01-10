@@ -7,6 +7,7 @@ import { IUser } from './../core/users/user.interface';
 import { AuthService } from './../core/auth/auth.service';
 import { UsersService } from './../core/users/users.service';
 import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.interfaces';
+import { DEDU_TOKEN_PREFIX } from '../constants';
 
 @Injectable()
 export class BlockchainService {
@@ -52,7 +53,7 @@ export class BlockchainService {
     const rawAddress = cryptography.getAddressFromPassphrase(passphrase);
     const address = cryptography.bufferToHex(rawAddress);
     const { privateKey, publicKey } = cryptography.getPrivateAndPublicKeyFromPassphrase(passphrase);
-    const humanReadableAddress = cryptography.getBase32AddressFromAddress(rawAddress);
+    const humanReadableAddress = cryptography.getBase32AddressFromAddress(rawAddress, DEDU_TOKEN_PREFIX);
 
     await this.updateUserBlockchainAddress(user.id, address);
 

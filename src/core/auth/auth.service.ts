@@ -17,6 +17,7 @@ export class AuthService {
     if (dbUser) {
       const doesPasswordsMatch = await compare(rawPassword, dbUser.password);
       if (doesPasswordsMatch) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...result } = dbUser;
         return result;
       }
@@ -26,7 +27,7 @@ export class AuthService {
     }
   }
 
-  async setRole(user: any, role: ERole): Promise<{ access_token: string }> {
+  async setRole(user: IUser, role: ERole): Promise<{ access_token: string }> {
     if (!user.role && (role === ERole.LEARNER || role === ERole.TEACHER)) {
       const updatedUser = await this.usersService.setRole(user.id, role);
       if (updatedUser) {
