@@ -8,6 +8,8 @@ POSTGRES_PASSWORD=user_password
 POSTGRES_DATABASE=database_name
 JWT_SECRET=this_should_stay_secret
 BLOCKCHAIN_CONFIG_PATH=~/.lisk/doedu-blockchain
+DEDU_FAUCET_PASSPHRASE="romance runway there must accident feature use march remember drip divert hazard"
+
 
 ```
 
