@@ -9,9 +9,6 @@ import { BlockchainService } from '../blockchain.service';
 
 @WebSocketGateway({ cors: true })
 export class BlockchainTransactionsGateway {
-  blockchainAccountAddress: string | null;
-  sub: any;
-
   constructor(private blockchainService: BlockchainService, private authService: AuthService) {}
 
   @UseGuards(JwtAuthGuard)
@@ -23,10 +20,5 @@ export class BlockchainTransactionsGateway {
       const account = await this.blockchainService.getAccount(decodedJWT.blockchainAddress);
       socket.emit('account', account);
     });
-  }
-
-  @SubscribeMessage('transaction:getFaucetTokens')
-  handleEvent(): void {
-    this.blockchainService.getFaucetTokens(this.blockchainAccountAddress);
   }
 }

@@ -18,8 +18,8 @@ export class BlockchainService {
   }
 
   public async getAccount(address: string): Promise<IBlockchainAccount> {
-    const blockchainAccount = await this.client.account.get(address);
-    return this.client.account.toJSON(blockchainAccount) as unknown as IBlockchainAccount;
+    const { token, nft } = await this.client.account.get(address);
+    return this.client.account.toJSON({ address, token, nft }) as unknown as IBlockchainAccount;
   }
 
   public async generatePassphrases(): Promise<string> {
@@ -71,17 +71,10 @@ export class BlockchainService {
     if (!this.client) {
       const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;
       this.client = await apiClient.createIPCClient(blockchainConfigPath);
-      this.subscribeNewBlockEvent();
     }
   }
 
   private async updateUserBlockchainAddress(userId: string, address: string): Promise<void> {
     this.usersService.setBlockchainAddress(userId, address);
-  }
-
-  private subscribeNewBlockEvent(): void {
-    this.client.subscribe('app:block:new', (event) => {
-      // console.log('new block event', event);
-    });
   }
 }
