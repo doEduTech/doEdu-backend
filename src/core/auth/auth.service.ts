@@ -55,7 +55,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  public decodeToken(jwt: string): any {
-    return this.jwtService.decode(jwt);
+  public decodeToken(jwt: string): IUser {
+    return <IUser>this.jwtService.decode(jwt);
   }
 }
