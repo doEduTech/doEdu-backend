@@ -1,0 +1,23 @@
+{
+  "env": {
+    "browser": false,
+    "es2021": false
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@darraghor/nestjs-typed/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 13,
+    "sourceType": "module",
+    "project": ["./tsconfig.json"]
+  },
+  "plugins": ["@typescript-eslint", "@darraghor/nestjs-typed"],
+  "rules": {
+    "@darraghor/nestjs-typed/controllers-should-supply-api-tags": "off",
+    "@darraghor/nestjs-typed/api-method-should-specify-api-response": "off",
+    "@darraghor/nestjs-typed/injectable-should-be-provided": "off"
+  }
+}

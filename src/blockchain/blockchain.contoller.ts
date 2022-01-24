@@ -25,4 +25,10 @@ export class BlockchainController {
   async initializeAccount(@Request() req, @Body() body): Promise<IBlockchainAccountCredentials> {
     return this.blockchainService.initializeAccount(req.user, body.passphrase);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('get-faucet-tokens')
+  async getFaucetTokens(@Request() req): Promise<void> {
+    return this.blockchainService.getFaucetTokens(req.user.blockchainAddress);
+  }
 }

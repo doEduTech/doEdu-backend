@@ -7,6 +7,6 @@ import { BlockchainTransactionsGateway } from './gateway/blockchain-transactions
 @Module({
   controllers: [BlockchainController],
   providers: [BlockchainService, BlockchainTransactionsGateway],
-  exports: [BlockchainService]
+  exports: [BlockchainService, BlockchainTransactionsGateway]
 })
 export class BlockchainModule {}

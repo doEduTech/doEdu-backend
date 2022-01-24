@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 
-import { apiClient, passphrase, cryptography } from '@liskhq/lisk-client';
+import { apiClient, passphrase, cryptography, transactions } from '@liskhq/lisk-client';
 import { APIClient } from '@liskhq/lisk-api-client/dist-node/api_client';
 
 import { IUser } from './../core/users/user.interface';
 import { AuthService } from './../core/auth/auth.service';
 import { UsersService } from './../core/users/users.service';
 import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.interfaces';
+import { DEDU_TOKEN_PREFIX } from '../constants';
 
 @Injectable()
 export class BlockchainService {
-  private client: APIClient;
+  public client: APIClient;
 
   constructor(private usersService: UsersService, private authService: AuthService) {
     this.setClient();
@@ -25,6 +26,27 @@ export class BlockchainService {
     return JSON.stringify(passphrase.Mnemonic.generateMnemonic());
   }
 
+  // TODO: this function is for development and tests only - remove it on prod
+  public async getFaucetTokens(address: string): Promise<void> {
+    if (!process.env.DEDU_FAUCET_PASSPHRASE) {
+      throw new Error('DEDU Faucet service is not enabled.');
+    }
+
+    const rawTx = {
+      moduleID: 2,
+      assetID: 0,
+      asset: {
+        amount: BigInt(transactions.convertLSKToBeddows('10')),
+        recipientAddress: Buffer.from(address, 'hex'),
+        data: 'faucet'
+      }
+    };
+
+    await this.client.transaction.send(
+      await this.client.transaction.create({ ...rawTx, fee: BigInt(999999) }, process.env.DEDU_FAUCET_PASSPHRASE)
+    );
+  }
+
   public async initializeAccount(
     user: IUser,
     passphrase: string
@@ -32,7 +54,7 @@ export class BlockchainService {
     const rawAddress = cryptography.getAddressFromPassphrase(passphrase);
     const address = cryptography.bufferToHex(rawAddress);
     const { privateKey, publicKey } = cryptography.getPrivateAndPublicKeyFromPassphrase(passphrase);
-    const humanReadableAddress = cryptography.getBase32AddressFromAddress(rawAddress);
+    const humanReadableAddress = cryptography.getBase32AddressFromAddress(rawAddress, DEDU_TOKEN_PREFIX);
 
     await this.updateUserBlockchainAddress(user.id, address);
 
@@ -49,10 +71,17 @@ export class BlockchainService {
     if (!this.client) {
       const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;
       this.client = await apiClient.createIPCClient(blockchainConfigPath);
+      this.subscribeNewBlockEvent();
     }
   }
 
   private async updateUserBlockchainAddress(userId: string, address: string): Promise<void> {
     this.usersService.setBlockchainAddress(userId, address);
+  }
+
+  private subscribeNewBlockEvent(): void {
+    this.client.subscribe('app:block:new', (event) => {
+      // console.log('new block event', event);
+    });
   }
 }
