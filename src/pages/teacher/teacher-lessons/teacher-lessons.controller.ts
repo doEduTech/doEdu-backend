@@ -1,9 +1,7 @@
 import { Body, Controller, Request, Get, Post, UseGuards, UseInterceptors, UploadedFiles, Param } from '@nestjs/common';
-import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
-import LocalFilesInterceptor from 'src/interceptors/local-files.interceptor';
-import SaveChosenFilesLocallyInterceptor from 'src/interceptors/local-files.interceptor';
 import { IPFSClientService } from 'src/ipfs/ipfs-client.service';
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { TeacherLessonsService } from './teacher-lessons.service';
@@ -41,24 +39,15 @@ export class TeacherLessonsController {
     return await this.teacherLessonsService.saveLesson(lesson);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  @Get('materials/:cid')
-  async getIPFSFile(@Param('cid') cid): Promise<any> {
-    const loaded = this.ipflClientService.get(cid);
-    console.log('loaded', typeof loaded);
-    return loaded;
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get('')
   async getAll(@Request() req): Promise<TeacherLessonEntity[]> {
     return await this.teacherLessonsService.findAll(req.user.id);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get(':id')
-  // async getOne(@Request() req, @Body() body): Promise<TeacherLessonEntity> {
-  //   console.log('red', req);
-  //   // return await this.teacherLessonsService.findOne(req.user.id);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getOne(@Request() req, @Param() id: string): Promise<TeacherLessonEntity> {
+    return await this.teacherLessonsService.findOne(req.user.id, id);
+  }
 }

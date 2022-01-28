@@ -16,10 +16,10 @@ export class TeacherLessonEntity {
   @Column({ nullable: true })
   description: string;
 
-  @Column() // { select: false }
+  @Column()
   cid: string;
 
-  @Column({ nullable: true }) // { select: false }
+  @Column({ nullable: true })
   previewCID: string;
 
   @ManyToOne(() => UserEntity, (author) => author.id, { onDelete: 'CASCADE' })
