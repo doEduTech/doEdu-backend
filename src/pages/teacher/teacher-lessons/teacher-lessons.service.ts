@@ -20,6 +20,7 @@ export class TeacherLessonsService {
 
   async findAll(authorId: string): Promise<TeacherLessonEntity[]> {
     return await this.teacherLessonRepository.find({
+      order: { created: 'DESC' },
       where: {
         author: authorId
       }
