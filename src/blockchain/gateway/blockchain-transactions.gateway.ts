@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { WebSocketGateway } from '@nestjs/websockets';
 
 import { Socket } from 'socket.io';
 

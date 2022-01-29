@@ -9,7 +9,7 @@ POSTGRES_DATABASE=database_name
 JWT_SECRET=this_should_stay_secret
 BLOCKCHAIN_CONFIG_PATH=~/.lisk/doedu-blockchain
 DEDU_FAUCET_PASSPHRASE="romance runway there must accident feature use march remember drip divert hazard"
-
+UPLOADED_FILES_DESTINATION=./uploaded-files
 
 ```
 
@@ -29,3 +29,8 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+
+IPFS
+Install: https://docs.ipfs.io/install/command-line/#official-distributions
+Init: `ipfs init`
+Run: `ipfs daemon`
