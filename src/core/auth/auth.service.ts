@@ -54,4 +54,8 @@ export class AuthService {
     const payload = { email: user.email, id: user.id, role: user.role, blockchainAddress: user.blockchainAddress };
     return this.jwtService.sign(payload);
   }
+
+  public decodeToken(jwt: string): IUser {
+    return <IUser>this.jwtService.decode(jwt);
+  }
 }

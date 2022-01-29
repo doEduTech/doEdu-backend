@@ -11,21 +11,22 @@ import { DEDU_TOKEN_PREFIX } from '../constants';
 
 @Injectable()
 export class BlockchainService {
-  private client: APIClient;
+  public client: APIClient;
 
   constructor(private usersService: UsersService, private authService: AuthService) {
     this.setClient();
   }
 
   public async getAccount(address: string): Promise<IBlockchainAccount> {
-    const blockchainAccount = await this.client.account.get(address);
-    return this.client.account.toJSON(blockchainAccount) as unknown as IBlockchainAccount;
+    const { token, nft } = await this.client.account.get(address);
+    return this.client.account.toJSON({ address, token, nft }) as unknown as IBlockchainAccount;
   }
 
   public async generatePassphrases(): Promise<string> {
     return JSON.stringify(passphrase.Mnemonic.generateMnemonic());
   }
 
+  // TODO: this function is for development and tests only - remove it on prod
   public async getFaucetTokens(address: string): Promise<void> {
     if (!process.env.DEDU_FAUCET_PASSPHRASE) {
       throw new Error('DEDU Faucet service is not enabled.');
