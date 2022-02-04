@@ -13,11 +13,11 @@ export class TeacherLessonsService {
     private teacherLessonRepository: Repository<TeacherLessonEntity>
   ) {}
 
-  async saveLesson(lesson: ITeacherLesson): Promise<TeacherLessonEntity> {
+  public async saveLesson(lesson: ITeacherLesson): Promise<TeacherLessonEntity> {
     return await this.teacherLessonRepository.save(lesson);
   }
 
-  async findAll(authorId: string, page = '0', pageSize = '10'): Promise<TeacherLessonEntity[]> {
+  public async findAll(authorId: string, page = '0', pageSize = '10'): Promise<TeacherLessonEntity[]> {
     const skip = Number(page || 0) * Number(pageSize || 0);
     const query = `
       SELECT
@@ -37,7 +37,7 @@ export class TeacherLessonsService {
     return result[0];
   }
 
-  async findOne(authorId: string, lessonId: string): Promise<TeacherLessonEntity> {
+  public async findOneOfAuthor(authorId: string, lessonId: string): Promise<TeacherLessonEntity> {
     return await this.teacherLessonRepository.findOne(lessonId, {
       where: {
         author: authorId

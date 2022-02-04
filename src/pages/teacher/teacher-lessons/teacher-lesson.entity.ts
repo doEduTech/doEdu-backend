@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 import { UserEntity } from 'src/core/users/user.entity';
+import { ELessonType } from './lesson-type.enum';
 
 @Entity('teacher-lesson')
 export class TeacherLessonEntity {
@@ -21,6 +22,9 @@ export class TeacherLessonEntity {
 
   @Column({ nullable: true })
   previewCID: string;
+
+  @Column({ type: 'enum', enum: ELessonType, nullable: true })
+  type: ELessonType;
 
   @ManyToOne(() => UserEntity, (author) => author.id, { onDelete: 'CASCADE' })
   author: UserEntity;
