@@ -31,4 +31,10 @@ export class BlockchainController {
   async getFaucetTokens(@Request() req): Promise<void> {
     return this.blockchainService.getFaucetTokens(req.user.blockchainAddress);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('transfer-tokens')
+  async transferTokens(@Body() body): Promise<void> {
+    return this.blockchainService.transferTokens(body.recipientUserId, body.amount, body.passphrase);
+  }
 }

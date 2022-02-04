@@ -1,4 +1,15 @@
-import { Body, Controller, Request, Get, Post, UseGuards, UseInterceptors, UploadedFiles, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Request,
+  Get,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  UploadedFiles,
+  Param,
+  Query
+} from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
@@ -41,8 +52,12 @@ export class TeacherLessonsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('')
-  async getAll(@Request() req): Promise<TeacherLessonEntity[]> {
-    return await this.teacherLessonsService.findAll(req.user.id);
+  async getAll(
+    @Query('page') page: string,
+    @Query('pageSize') pageSize: string,
+    @Request() req
+  ): Promise<TeacherLessonEntity[]> {
+    return await this.teacherLessonsService.findAll(req.user.id, page, pageSize);
   }
 
   @UseGuards(JwtAuthGuard)
