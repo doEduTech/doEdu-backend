@@ -8,6 +8,7 @@ import { AuthModule } from './core/auth/auth.module';
 import { UsersModule } from './core/users/users.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { TeacherModule } from './pages/teacher/teacher.module';
+import { MarketModule } from './pages/market/market/market.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { TeacherModule } from './pages/teacher/teacher.module';
     AuthModule,
     UsersModule,
     BlockchainModule,
-    TeacherModule
+    TeacherModule,
+    MarketModule
   ],
   controllers: [AppController],
   providers: [AppService]

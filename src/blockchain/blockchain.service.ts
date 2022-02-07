@@ -26,6 +26,27 @@ export class BlockchainService {
     return JSON.stringify(passphrase.Mnemonic.generateMnemonic());
   }
 
+  public async transferTokens(recipientUserId: string, amount: number, passphrase: string): Promise<void> {
+    const recipientUser = await this.usersService.findOneById(recipientUserId);
+    if (!recipientUser) {
+      throw new Error('No recipient user account found');
+    }
+
+    const rawTx = {
+      moduleID: 2,
+      assetID: 0,
+      asset: {
+        amount: BigInt(amount),
+        recipientAddress: Buffer.from(recipientUser.blockchainAddress, 'hex'),
+        data: 'tokens transfer'
+      }
+    };
+
+    const transaction = await this.client.transaction.create({ ...rawTx, fee: BigInt(999999) }, passphrase);
+
+    await this.client.transaction.send(transaction);
+  }
+
   // TODO: this function is for development and tests only - remove it on prod
   public async getFaucetTokens(address: string): Promise<void> {
     if (!process.env.DEDU_FAUCET_PASSPHRASE) {
