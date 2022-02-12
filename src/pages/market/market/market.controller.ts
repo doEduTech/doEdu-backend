@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 
-import { IMarketLesson } from './market-lesson.interface';
+import { IMarketLesson, IMarketLessonsQueryParams } from './market-lesson.interface';
 import { MarketService } from './market.service';
 
 @Controller('market')
@@ -8,8 +8,8 @@ export class MarketController {
   constructor(private marketService: MarketService) {}
 
   @Get('lessons')
-  async getAll(@Query('page') page: string, @Query('pageSize') pageSize: string): Promise<IMarketLesson[]> {
-    return await this.marketService.findAll(page, pageSize);
+  async getAll(@Query() queryParams: IMarketLessonsQueryParams): Promise<IMarketLesson[]> {
+    return await this.marketService.findAll(queryParams);
   }
 
   @Get('lessons/:id')
