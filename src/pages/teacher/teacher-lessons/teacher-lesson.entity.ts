@@ -11,10 +11,15 @@ export class TeacherLessonEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
 
-  @Column()
+  @Column({
+    length: 50
+  })
   title: string;
 
-  @Column({ nullable: true })
+  @Column({
+    nullable: true,
+    length: 500
+  })
   description: string;
 
   @Column()
@@ -23,7 +28,7 @@ export class TeacherLessonEntity {
   @Column({ nullable: true })
   previewCID: string;
 
-  @Column({ type: 'enum', enum: ELessonType, nullable: true })
+  @Column({ type: 'enum', enum: ELessonType })
   type: ELessonType;
 
   @ManyToOne(() => UserEntity, (author) => author.id, { onDelete: 'CASCADE' })
