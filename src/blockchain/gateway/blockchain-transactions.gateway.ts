@@ -15,11 +15,13 @@ export class BlockchainTransactionsGateway {
   handleConnection(socket: Socket) {
     const jwt = socket.handshake.headers.authorization || null;
     const decodedJWT = this.authService.decodeToken(jwt.replace('Bearer ', ''));
-    this.emitAccountData(socket, decodedJWT.blockchainAddress);
-
-    this.blockchainService.client.subscribe('app:block:new', async () => {
+    if (decodedJWT.blockchainAddress) {
       this.emitAccountData(socket, decodedJWT.blockchainAddress);
-    });
+
+      this.blockchainService.client.subscribe('app:block:new', async () => {
+        this.emitAccountData(socket, decodedJWT.blockchainAddress);
+      });
+    }
   }
 
   private async emitAccountData(socket: Socket, blockchainAddress: string): Promise<void> {

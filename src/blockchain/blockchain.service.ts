@@ -18,8 +18,17 @@ export class BlockchainService {
   }
 
   public async getAccount(address: string): Promise<IBlockchainAccount> {
-    const { token, nft } = await this.client.account.get(address);
-    return this.client.account.toJSON({ address, token, nft }) as unknown as IBlockchainAccount;
+    try {
+      const account = await this.client.account.get(address);
+      if (account) {
+        const { token, nft } = account;
+        return this.client.account.toJSON({ address, token, nft }) as unknown as IBlockchainAccount;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 
   public async generatePassphrases(): Promise<string> {
@@ -33,12 +42,12 @@ export class BlockchainService {
     }
 
     const rawTx = {
-      moduleID: 2,
-      assetID: 0,
+      moduleID: 1024,
+      assetID: 3,
       asset: {
         amount: BigInt(amount),
         recipientAddress: Buffer.from(recipientUser.blockchainAddress, 'hex'),
-        data: 'tokens transfer'
+        data: 'tip'
       }
     };
 
