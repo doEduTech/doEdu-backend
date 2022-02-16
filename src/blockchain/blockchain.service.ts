@@ -18,8 +18,17 @@ export class BlockchainService {
   }
 
   public async getAccount(address: string): Promise<IBlockchainAccount> {
-    const { token, nft } = await this.client.account.get(address);
-    return this.client.account.toJSON({ address, token, nft }) as unknown as IBlockchainAccount;
+    try {
+      const account = await this.client.account.get(address);
+      if (account) {
+        const { token, nft } = account;
+        return this.client.account.toJSON({ address, token, nft }) as unknown as IBlockchainAccount;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 
   public async generatePassphrases(): Promise<string> {
@@ -33,16 +42,16 @@ export class BlockchainService {
     }
 
     const rawTx = {
-      moduleID: 2,
-      assetID: 0,
+      moduleID: 1024,
+      assetID: 3,
       asset: {
         amount: BigInt(amount),
         recipientAddress: Buffer.from(recipientUser.blockchainAddress, 'hex'),
-        data: 'tokens transfer'
+        data: 'tip'
       }
     };
 
-    const transaction = await this.client.transaction.create({ ...rawTx, fee: BigInt(999999) }, passphrase);
+    const transaction = await this.client.transaction.create({ ...rawTx, fee: BigInt(0) }, passphrase);
 
     await this.client.transaction.send(transaction);
   }
@@ -53,18 +62,19 @@ export class BlockchainService {
       throw new Error('DEDU Faucet service is not enabled.');
     }
 
+    const amount = BigInt(transactions.convertLSKToBeddows('10'));
     const rawTx = {
       moduleID: 2,
       assetID: 0,
       asset: {
-        amount: BigInt(transactions.convertLSKToBeddows('10')),
+        amount,
         recipientAddress: Buffer.from(address, 'hex'),
-        data: 'faucet'
+        data: 'transfer 1000000000 tokens from faucet account'
       }
     };
 
     await this.client.transaction.send(
-      await this.client.transaction.create({ ...rawTx, fee: BigInt(999999) }, process.env.DEDU_FAUCET_PASSPHRASE)
+      await this.client.transaction.create({ ...rawTx, fee: BigInt(0) }, process.env.DEDU_FAUCET_PASSPHRASE)
     );
   }
 
