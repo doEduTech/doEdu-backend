@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
+import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
 import { IPFSClientService } from 'src/ipfs/ipfs-client.service';
 import { ELessonType } from './lesson-type.enum';
@@ -22,7 +23,11 @@ import { TeacherLessonsService } from './teacher-lessons.service';
 
 @Controller('teacher/lessons')
 export class TeacherLessonsController {
-  constructor(private ipflClientService: IPFSClientService, private teacherLessonsService: TeacherLessonsService) {}
+  constructor(
+    private ipflClientService: IPFSClientService,
+    private teacherLessonsService: TeacherLessonsService,
+    private blockchainService: BlockchainService
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('')
@@ -37,17 +42,7 @@ export class TeacherLessonsController {
     @Request() req,
     @Body() body
   ) {
-    let fileType: string;
-    const mimetype = files.content[0].mimetype;
-    if (mimetype === 'application/pdf') {
-      fileType = ELessonType.PDF;
-    } else if (mimetype === 'audio/mpeg') {
-      fileType = ELessonType.AUDIO;
-    } else if (mimetype === 'video/mp4') {
-      fileType = ELessonType.VIDEO;
-    } else {
-      throw new Error('Unsupported file type');
-    }
+    const fileType = this.teacherLessonsService.getFileType(files.content[0].mimetype);
 
     const contentFileCID = await this.ipflClientService.upload(files.content[0]);
 
@@ -55,6 +50,11 @@ export class TeacherLessonsController {
     if (files.preview) {
       previewFileCID = await this.ipflClientService.upload(files.preview[0]);
     }
+
+    if (body.createNFT === 'true') {
+      this.blockchainService.mintNFT(body.title, req.user.id, contentFileCID);
+    }
+
     const lesson = {
       cid: contentFileCID,
       previewCID: previewFileCID,

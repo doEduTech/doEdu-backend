@@ -26,6 +26,9 @@ export class TeacherLessonEntity {
   cid: string;
 
   @Column({ nullable: true })
+  nft: string;
+
+  @Column({ nullable: true })
   previewCID: string;
 
   @Column({ type: 'enum', enum: ELessonType })

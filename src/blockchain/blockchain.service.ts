@@ -98,6 +98,34 @@ export class BlockchainService {
     };
   }
 
+  public async mintNFT(title: string, ownerId: string, cid: string): Promise<void> {
+    const ownerUser = await this.usersService.findOneById(ownerId);
+    if (!ownerUser) {
+      throw new Error('No owner user account found');
+    }
+
+    const asset = {
+      name: title,
+      ownerAddress: Buffer.from(ownerUser.blockchainAddress, 'hex'),
+      transferable: true,
+      meta: Buffer.from(''),
+      avatarHash: Buffer.from(''),
+      contentHash: Buffer.from(cid, 'hex')
+    };
+
+    const rawTx = {
+      moduleID: 1024,
+      assetID: 0,
+      asset
+    };
+
+    const transaction = await this.client.transaction.create(
+      { ...rawTx, fee: BigInt(0) },
+      process.env.MINTER_PASSPHRASE
+    );
+    await this.client.transaction.send(transaction);
+  }
+
   private async setClient(): Promise<void> {
     if (!this.client) {
       const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;

@@ -4,4 +4,5 @@ export interface ITeacherLesson {
   title: string;
   previewCID?: string;
   description?: string;
+  nft?: string;
 }

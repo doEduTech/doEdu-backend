@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
+import { ELessonType } from './lesson-type.enum';
 
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { ITeacherLesson } from './teacher-lesson.interface';
@@ -43,5 +44,17 @@ export class TeacherLessonsService {
         author: authorId
       }
     });
+  }
+
+  public getFileType(mimetype: string): string {
+    if (mimetype === 'application/pdf') {
+      return ELessonType.PDF;
+    } else if (mimetype === 'audio/mpeg') {
+      return ELessonType.AUDIO;
+    } else if (mimetype === 'video/mp4') {
+      return ELessonType.VIDEO;
+    } else {
+      throw new Error('Unsupported file type');
+    }
   }
 }

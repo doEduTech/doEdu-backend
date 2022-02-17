@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { IPFSClientService } from 'src/ipfs/ipfs-client.service';
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { TeacherLessonsController } from './teacher-lessons.controller';
@@ -11,6 +12,6 @@ const entitiesComponents = [TeacherLessonEntity];
 @Module({
   imports: [TypeOrmModule.forFeature(entitiesComponents)],
   controllers: [TeacherLessonsController],
-  providers: [TeacherLessonsService, IPFSClientService]
+  providers: [TeacherLessonsService, IPFSClientService, BlockchainService]
 })
 export class TeacherLessonsModule {}
