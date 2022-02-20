@@ -90,7 +90,7 @@ export class MarketLessonsService {
 
   async unlikeLesson(lessonId: string, userId: string): Promise<void> {
     const query = `
-      DELETE FROM lesson_likes
+      DELETE FROM lesson_like
       WHERE "lessonId" = '${lessonId}' AND "authorId" = '${userId}';
     `;
     return await this.lessonLikeRepository.query(query);
@@ -114,7 +114,7 @@ export class MarketLessonsService {
     const query = `
       SELECT exists(
         SELECT 1 
-        FROM lesson_likes 
+        FROM lesson_like 
         WHERE "lessonId" = '${lessonId}' 
           AND "authorId" = '${userId}'
       )`;

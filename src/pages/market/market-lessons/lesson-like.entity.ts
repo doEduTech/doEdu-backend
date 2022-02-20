@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Unique } from 'typeo
 import { UserEntity } from 'src/core/users/user.entity';
 import { TeacherLessonEntity } from 'src/pages/teacher/teacher-lessons/teacher-lesson.entity';
 
-@Entity('lesson_likes')
+@Entity('lesson_like')
 @Unique(['lesson', 'author'])
 export class LessonLikeEntity {
   @PrimaryGeneratedColumn('uuid')
