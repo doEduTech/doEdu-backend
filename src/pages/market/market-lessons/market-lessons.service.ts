@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 
 import { TeacherLessonEntity } from 'src/pages/teacher/teacher-lessons/teacher-lesson.entity';
 import { IMarketLesson, IMarketLessonsQueryParams } from './market-lesson.interface';
+import { LessonLikeEntity } from './lesson-like.entity';
 
 @Injectable()
-export class MarketService {
+export class MarketLessonsService {
   constructor(
     @InjectRepository(TeacherLessonEntity)
-    private teacherLessonRepository: Repository<TeacherLessonEntity>
+    private teacherLessonRepository: Repository<TeacherLessonEntity>,
+    @InjectRepository(LessonLikeEntity)
+    private lessonLikeRepository: Repository<LessonLikeEntity>
   ) {}
 
   async findAll(queryParams: IMarketLessonsQueryParams): Promise<IMarketLesson[]> {
@@ -47,7 +50,7 @@ export class MarketService {
     return result[0];
   }
 
-  async findOne(lessonId: string): Promise<IMarketLesson> {
+  async findOne(lessonId: string, userId = ''): Promise<IMarketLesson> {
     const query = `
         SELECT 				
         lesson.id, 
@@ -63,8 +66,34 @@ export class MarketService {
     LEFT JOIN public.user usr ON lesson."authorId" = usr.id
     WHERE
       lesson.id = '${lessonId}'`;
+
     const result = await this.teacherLessonRepository.query(query);
-    return result[0];
+    if (userId) {
+      const liked = await this.getLike(lessonId, userId);
+      return {
+        ...result[0],
+        liked
+      };
+    } else {
+      return result[0];
+    }
+  }
+
+  async likeLesson(lessonId: string, userId: string): Promise<LessonLikeEntity> {
+    const like = {
+      author: userId,
+      lesson: lessonId
+    } as unknown as LessonLikeEntity;
+
+    return await this.lessonLikeRepository.save(like);
+  }
+
+  async unlikeLesson(lessonId: string, userId: string): Promise<void> {
+    const query = `
+      DELETE FROM lesson_like
+      WHERE "lessonId" = '${lessonId}' AND "authorId" = '${userId}';
+    `;
+    return await this.lessonLikeRepository.query(query);
   }
 
   private getWhereClause(queryParams: IMarketLessonsQueryParams): string {
@@ -79,5 +108,17 @@ export class MarketService {
       return typesClauses[0];
     }
     return '';
+  }
+
+  private async getLike(lessonId: string, userId: string): Promise<boolean> {
+    const query = `
+      SELECT exists(
+        SELECT 1 
+        FROM lesson_like 
+        WHERE "lessonId" = '${lessonId}' 
+          AND "authorId" = '${userId}'
+      )`;
+    const result = await this.lessonLikeRepository.query(query);
+    return result[0].exists;
   }
 }
