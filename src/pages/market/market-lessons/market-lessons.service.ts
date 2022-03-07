@@ -25,7 +25,7 @@ export class MarketLessonsService {
 
     const query = `SELECT
         (SELECT COUNT(*) 
-          FROM "teacher-lesson" lesson
+          FROM "teacher_lesson" lesson
           ${whereClause ? 'WHERE ' + whereClause : ''} 
         ) as count, 
         (SELECT json_agg(t.*) FROM (
@@ -38,7 +38,7 @@ export class MarketLessonsService {
         lesson."previewCID", 
         lesson.type,
 				json_build_object('id', usr.id, 'email', usr.email) AS author 
-      FROM "teacher-lesson" lesson
+      FROM "teacher_lesson" lesson
       LEFT JOIN public.user usr ON lesson."authorId" = usr.id
       ${whereClause ? 'WHERE ' + whereClause : ''} 
 			ORDER BY lesson.created DESC
@@ -62,7 +62,7 @@ export class MarketLessonsService {
         lesson.type,
         json_build_object('id', usr.id, 'email', usr.email) AS author 
     FROM
-        "teacher-lesson" lesson
+        "teacher_lesson" lesson
     LEFT JOIN public.user usr ON lesson."authorId" = usr.id
     WHERE
       lesson.id = '${lessonId}'`;

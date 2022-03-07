@@ -9,6 +9,7 @@ import { UsersModule } from './core/users/users.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { TeacherModule } from './pages/teacher/teacher.module';
 import { MarketLessonsModule } from './pages/market/market-lessons/market-lessons.module';
+import { LearnerDashboardLessonsModule } from './pages/learner/learner-dashboard-lessons/learner-dashboard-lessons.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { MarketLessonsModule } from './pages/market/market-lessons/market-lesson
     UsersModule,
     BlockchainModule,
     TeacherModule,
-    MarketLessonsModule
+    MarketLessonsModule,
+    LearnerDashboardLessonsModule
   ],
   controllers: [AppController],
   providers: [AppService]
