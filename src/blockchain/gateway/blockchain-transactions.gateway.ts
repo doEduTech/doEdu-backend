@@ -18,7 +18,7 @@ export class BlockchainTransactionsGateway {
     if (decodedJWT.blockchainAddress) {
       this.emitAccountData(socket, decodedJWT.blockchainAddress);
 
-      this.blockchainService.client.subscribe('app:block:new', async () => {
+      this.blockchainService.newBlockForged.on('app:block:new', async () => {
         this.emitAccountData(socket, decodedJWT.blockchainAddress);
       });
     }
