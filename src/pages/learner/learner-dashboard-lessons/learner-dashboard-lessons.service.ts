@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { LessonLikeEntity } from 'src/pages/market/market-lessons/lesson-like.entity';
+import { ILearnerDashboardLesson } from './learner-dashboard-lesson.interface';
 
 @Injectable()
 export class LearnerDashboardLessonsService {
@@ -12,7 +13,7 @@ export class LearnerDashboardLessonsService {
     private lessonLikeRepository: Repository<LessonLikeEntity>
   ) {}
 
-  public async findAll(authorId: string, page = '0', pageSize = '10'): Promise<any[]> {
+  public async findAll(authorId: string, page = '0', pageSize = '10'): Promise<ILearnerDashboardLesson[]> {
     const skip = Number(page || 0) * Number(pageSize || 0);
     const query = `
       SELECT
@@ -23,7 +24,7 @@ export class LearnerDashboardLessonsService {
         (SELECT json_agg(t.*) FROM (
       SELECT 
         lesson_like.created,
-        lesson_like."authorId" as like_author, 
+        lesson_like."authorId", 
         teacher_lesson.title, 
         teacher_lesson.type as type, 
         teacher_lesson."previewCID", 

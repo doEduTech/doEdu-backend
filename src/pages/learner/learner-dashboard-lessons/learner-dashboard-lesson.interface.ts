@@ -1,7 +1,10 @@
-export interface ILearnerLesson {
-  id?: string;
-  cid: string;
+export interface ILearnerDashboardLesson {
+  type: ILearnerDashboardLessonType;
+  lessonId: string;
+  likeAuthor: string;
+  previewCID: string;
   title: string;
-  previewCID?: string;
-  description?: string;
+  created: string;
 }
+
+export type ILearnerDashboardLessonType = 'audio' | 'video' | 'pdf';

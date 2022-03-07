@@ -43,7 +43,7 @@ export class BlockchainService {
 
     const rawTx = {
       moduleID: 1024,
-      assetID: 3,
+      assetID: 2,
       asset: {
         amount: BigInt(amount),
         recipientAddress: Buffer.from(recipientUser.blockchainAddress, 'hex'),
