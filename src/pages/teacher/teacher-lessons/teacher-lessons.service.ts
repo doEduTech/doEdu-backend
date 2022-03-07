@@ -22,11 +22,11 @@ export class TeacherLessonsService {
     const query = `
       SELECT
         (SELECT COUNT(*) 
-        FROM "teacher-lesson"
+        FROM "teacher_lesson"
         WHERE "authorId" = '${authorId}'
         ) as count, 
         (SELECT json_agg(t.*) FROM (
-            SELECT * FROM "teacher-lesson"
+            SELECT * FROM "teacher_lesson"
             WHERE "authorId" = '${authorId}'
             ORDER BY created DESC
             OFFSET ${skip}
