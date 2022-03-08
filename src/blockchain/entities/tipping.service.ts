@@ -13,9 +13,7 @@ export class TippingService {
   ) {}
 
   public async savePendingTransaction(tippingData: TippingEntity): Promise<TippingEntity> {
-    const saved = await this.tippingRepository.save({ ...tippingData, status: ETransactionStatus.PENDING });
-
-    return saved;
+    return await this.tippingRepository.save({ ...tippingData, status: ETransactionStatus.PENDING });
   }
 
   public async getIdsOfAllPendingTransactions(): Promise<string[]> {

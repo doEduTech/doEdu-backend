@@ -68,7 +68,6 @@ export class BlockchainService {
     const transaction = await this.client.transaction.create({ ...rawTx, fee: BigInt(0) }, passphrase);
 
     const pendingTransaction = await this.client.transaction.send(transaction);
-    console.log('pendingTransaction', pendingTransaction);
 
     this.createPendingTipTransaction({
       recipient: recipientUserId,
@@ -137,7 +136,6 @@ export class BlockchainService {
   }
 
   private updateTippingTransactions(pendigTipTransactions) {
-    console.log('pendigTipTransactions', pendigTipTransactions);
     pendigTipTransactions.forEach(async (pendigTipTransactionId) => {
       const transactionStatus = await this.client.invoke('app:getTransactionByID', { id: pendigTipTransactionId });
       if (transactionStatus) {
