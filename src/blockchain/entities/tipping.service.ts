@@ -23,7 +23,7 @@ export class TippingService {
 
   public async confirmTransaction(transactionId: string): Promise<void> {
     const toUpdate = await this.tippingRepository.findOne({ where: { transactionId } });
-    const updated = { ...toUpdate, status: ETransactionStatus.CONFIRMED };
+    const updated = { ...toUpdate, status: ETransactionStatus.CONFIRMED, statusUpdate: new Date() };
     await this.tippingRepository.save(updated);
   }
 }

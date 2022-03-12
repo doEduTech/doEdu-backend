@@ -19,7 +19,7 @@ export class TippingEntity {
   created: Date;
 
   @Column({ type: 'timestamp', nullable: true })
-  confirmed: Date;
+  statusUpdate: Date;
 
   @Column({ nullable: false })
   amount: number;
