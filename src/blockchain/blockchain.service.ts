@@ -8,12 +8,21 @@ import { AuthService } from './../core/auth/auth.service';
 import { UsersService } from './../core/users/users.service';
 import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.interfaces';
 import { DEDU_TOKEN_PREFIX } from '../constants';
+import { EventEmitter } from 'events';
+import { ITip } from './entities/tip.interface';
+import { TippingService } from './entities/tipping.service';
+import { TippingEntity } from './entities/tipping.entity';
 
 @Injectable()
 export class BlockchainService {
+  public newBlockForged = new EventEmitter();
   public client: APIClient;
 
-  constructor(private usersService: UsersService, private authService: AuthService) {
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService,
+    private tippingService: TippingService
+  ) {
     this.setClient();
   }
 
@@ -35,7 +44,12 @@ export class BlockchainService {
     return JSON.stringify(passphrase.Mnemonic.generateMnemonic());
   }
 
-  public async transferTokens(recipientUserId: string, amount: number, passphrase: string): Promise<void> {
+  public async transferTokens(
+    recipientUserId: string,
+    amount: number,
+    passphrase: string,
+    userId: string
+  ): Promise<void> {
     const recipientUser = await this.usersService.findOneById(recipientUserId);
     if (!recipientUser) {
       throw new Error('No recipient user account found');
@@ -53,7 +67,18 @@ export class BlockchainService {
 
     const transaction = await this.client.transaction.create({ ...rawTx, fee: BigInt(0) }, passphrase);
 
-    await this.client.transaction.send(transaction);
+    const pendingTransaction = await this.client.transaction.send(transaction);
+
+    this.createPendingTipTransaction({
+      recipient: recipientUserId,
+      transactionId: pendingTransaction.transactionId,
+      sender: userId,
+      amount
+    });
+  }
+
+  private createPendingTipTransaction(tip: ITip): void {
+    this.tippingService.savePendingTransaction(tip as unknown as TippingEntity);
   }
 
   // TODO: this function is for development and tests only - remove it on prod
@@ -102,7 +127,21 @@ export class BlockchainService {
     if (!this.client) {
       const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;
       this.client = await apiClient.createIPCClient(blockchainConfigPath);
+      this.client.subscribe('app:block:new', async (block) => {
+        const pendigTipTransactionsIds = await this.tippingService.getIdsOfAllPendingTransactions();
+        this.updateTippingTransactions(pendigTipTransactionsIds);
+        this.newBlockForged.emit('app:block:new', block);
+      });
     }
+  }
+
+  private updateTippingTransactions(pendigTipTransactionsIds: string[]): void {
+    pendigTipTransactionsIds.forEach(async (pendigTipTransactionId) => {
+      const transactionStatus = await this.client.invoke('app:getTransactionByID', { id: pendigTipTransactionId });
+      if (transactionStatus) {
+        this.tippingService.confirmTransaction(pendigTipTransactionId);
+      }
+    });
   }
 
   private async updateUserBlockchainAddress(userId: string, address: string): Promise<void> {
