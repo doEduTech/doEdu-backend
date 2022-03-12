@@ -34,7 +34,7 @@ export class BlockchainController {
 
   @UseGuards(JwtAuthGuard)
   @Post('transfer-tokens')
-  async transferTokens(@Body() body): Promise<void> {
-    return this.blockchainService.transferTokens(body.recipientUserId, body.amount, body.passphrase);
+  async transferTokens(@Request() req, @Body() body): Promise<void> {
+    return this.blockchainService.transferTokens(body.recipientUserId, body.amount, body.passphrase, req.user.id);
   }
 }
