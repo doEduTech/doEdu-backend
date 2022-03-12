@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 import { ELessonType } from './lesson-type.enum';
+import { ENFTMintingStatus } from './nft-minting-status.enum';
 
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { ITeacherLesson } from './teacher-lesson.interface';
@@ -44,6 +45,10 @@ export class TeacherLessonsService {
         author: authorId
       }
     });
+  }
+
+  public async updateNFTStatus(lessonId: string, status: ENFTMintingStatus, nft: string): Promise<void> {
+    await this.teacherLessonRepository.update(lessonId, { nftStatus: status, nft });
   }
 
   public getFileType(mimetype: string): string {

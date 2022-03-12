@@ -16,7 +16,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
 import { IPFSClientService } from 'src/ipfs/ipfs-client.service';
-import { ELessonType } from './lesson-type.enum';
+import { ENFTMintingStatus } from './nft-minting-status.enum';
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { ITeacherLesson } from './teacher-lesson.interface';
 import { TeacherLessonsService } from './teacher-lessons.service';
@@ -51,19 +51,23 @@ export class TeacherLessonsController {
       previewFileCID = await this.ipflClientService.upload(files.preview[0]);
     }
 
-    if (body.createNFT === 'true') {
-      this.blockchainService.mintNFT(body.title, req.user.id, contentFileCID);
-    }
-
+    const createNFT = body.createNFT === 'true';
     const lesson = {
       cid: contentFileCID,
       previewCID: previewFileCID,
       title: body.title,
       description: body.description,
       author: req.user.id,
-      type: fileType
+      type: fileType,
+      nftStatus: createNFT ? ENFTMintingStatus.PENDING : null
     };
-    return await this.teacherLessonsService.saveLesson(lesson);
+
+    const newLesson = await this.teacherLessonsService.saveLesson(lesson);
+
+    if (createNFT) {
+      this.blockchainService.mintNFT(body.title, req.user.id, contentFileCID, newLesson.id);
+    }
+    return newLesson;
   }
 
   @UseGuards(JwtAuthGuard)
