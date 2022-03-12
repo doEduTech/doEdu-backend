@@ -135,8 +135,8 @@ export class BlockchainService {
     }
   }
 
-  private updateTippingTransactions(pendigTipTransactions) {
-    pendigTipTransactions.forEach(async (pendigTipTransactionId) => {
+  private updateTippingTransactions(pendigTipTransactionsIds: string[]): void {
+    pendigTipTransactionsIds.forEach(async (pendigTipTransactionId) => {
       const transactionStatus = await this.client.invoke('app:getTransactionByID', { id: pendigTipTransactionId });
       if (transactionStatus) {
         this.tippingService.confirmTransaction(pendigTipTransactionId);
