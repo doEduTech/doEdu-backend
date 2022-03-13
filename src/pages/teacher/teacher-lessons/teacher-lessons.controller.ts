@@ -13,16 +13,21 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
+import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
 import { IPFSClientService } from 'src/ipfs/ipfs-client.service';
-import { ELessonType } from './lesson-type.enum';
+import { EnftMintingStatus } from './nft-minting-status.enum';
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { ITeacherLesson } from './teacher-lesson.interface';
 import { TeacherLessonsService } from './teacher-lessons.service';
 
 @Controller('teacher/lessons')
 export class TeacherLessonsController {
-  constructor(private ipflClientService: IPFSClientService, private teacherLessonsService: TeacherLessonsService) {}
+  constructor(
+    private ipfsClientService: IPFSClientService,
+    private teacherLessonsService: TeacherLessonsService,
+    private blockchainService: BlockchainService
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('')
@@ -37,33 +42,32 @@ export class TeacherLessonsController {
     @Request() req,
     @Body() body
   ) {
-    let fileType: string;
-    const mimetype = files.content[0].mimetype;
-    if (mimetype === 'application/pdf') {
-      fileType = ELessonType.PDF;
-    } else if (mimetype === 'audio/mpeg') {
-      fileType = ELessonType.AUDIO;
-    } else if (mimetype === 'video/mp4') {
-      fileType = ELessonType.VIDEO;
-    } else {
-      throw new Error('Unsupported file type');
-    }
+    const fileType = this.teacherLessonsService.getFileType(files.content[0].mimetype);
 
-    const contentFileCID = await this.ipflClientService.upload(files.content[0]);
+    const contentFileCID = await this.ipfsClientService.upload(files.content[0]);
 
     let previewFileCID = null;
     if (files.preview) {
-      previewFileCID = await this.ipflClientService.upload(files.preview[0]);
+      previewFileCID = await this.ipfsClientService.upload(files.preview[0]);
     }
+
+    const createNFT = body.createNFT === 'true';
     const lesson = {
       cid: contentFileCID,
       previewCID: previewFileCID,
       title: body.title,
       description: body.description,
       author: req.user.id,
-      type: fileType
+      type: fileType,
+      nftStatus: createNFT ? EnftMintingStatus.PENDING : null
     };
-    return await this.teacherLessonsService.saveLesson(lesson);
+
+    const newLesson = await this.teacherLessonsService.saveLesson(lesson);
+
+    if (createNFT) {
+      this.blockchainService.mintNFT(body.title, req.user.id, contentFileCID, newLesson.id);
+    }
+    return newLesson;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -90,9 +94,9 @@ export class TeacherLessonsController {
       if (isNewPreviewDefined) {
         if (originalLesson.previewCID && body.preview === '') {
           updatedLessonFileds['previewCID'] = null;
-          this.ipflClientService.unpinFile(originalLesson.previewCID);
+          this.ipfsClientService.unpinFile(originalLesson.previewCID);
         } else if (files.preview) {
-          updatedLessonFileds['previewCID'] = await this.ipflClientService.upload(files.preview[0]);
+          updatedLessonFileds['previewCID'] = await this.ipfsClientService.upload(files.preview[0]);
         }
       }
       if (body.title !== originalLesson.title) {

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
+import { ELessonType } from './lesson-type.enum';
+import { EnftMintingStatus } from './nft-minting-status.enum';
 
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { ITeacherLesson } from './teacher-lesson.interface';
@@ -43,5 +45,21 @@ export class TeacherLessonsService {
         author: authorId
       }
     });
+  }
+
+  public async updateNFTStatus(lessonId: string, status: EnftMintingStatus, nft: string): Promise<void> {
+    await this.teacherLessonRepository.update(lessonId, { nftStatus: status, nft });
+  }
+
+  public getFileType(mimetype: string): string {
+    if (mimetype === 'application/pdf') {
+      return ELessonType.PDF;
+    } else if (mimetype === 'audio/mpeg') {
+      return ELessonType.AUDIO;
+    } else if (mimetype === 'video/mp4') {
+      return ELessonType.VIDEO;
+    } else {
+      throw new Error('Unsupported file type');
+    }
   }
 }

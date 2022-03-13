@@ -12,16 +12,20 @@ import { EventEmitter } from 'events';
 import { ITip } from './entities/tip.interface';
 import { TippingService } from './entities/tipping.service';
 import { TippingEntity } from './entities/tipping.entity';
+import { TeacherLessonsService } from 'src/pages/teacher/teacher-lessons/teacher-lessons.service';
+import { EnftMintingStatus } from 'src/pages/teacher/teacher-lessons/nft-minting-status.enum';
 
 @Injectable()
 export class BlockchainService {
   public newBlockForged = new EventEmitter();
   public client: APIClient;
+  private pendingNFTminting: { lessonId: string; transactionId: string }[] = [];
 
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
-    private tippingService: TippingService
+    private tippingService: TippingService,
+    private teacherLessonsService: TeacherLessonsService
   ) {
     this.setClient();
   }
@@ -123,19 +127,70 @@ export class BlockchainService {
     };
   }
 
+  public async mintNFT(title: string, ownerId: string, cid: string, lessonId: string): Promise<void> {
+    const ownerUser = await this.usersService.findOneById(ownerId);
+    if (!ownerUser) {
+      throw new Error('No owner user account found');
+    }
+
+    const asset = {
+      name: title,
+      ownerAddress: Buffer.from(ownerUser.blockchainAddress, 'hex'),
+      transferable: true,
+      meta: Buffer.from(''),
+      avatarHash: Buffer.from(''),
+      contentHash: Buffer.from(cid, 'hex')
+    };
+
+    const rawTx = {
+      moduleID: 1024,
+      assetID: 0,
+      asset
+    };
+
+    const transaction = await this.client.transaction.create(
+      { ...rawTx, fee: BigInt(0) },
+      process.env.MINTER_PASSPHRASE
+    );
+
+    const sentTransaction = await this.client.transaction.send(transaction);
+    this.pendingNFTminting = [...this.pendingNFTminting, { lessonId, transactionId: sentTransaction.transactionId }];
+  }
+
   private async setClient(): Promise<void> {
     if (!this.client) {
       const blockchainConfigPath = process.env.BLOCKCHAIN_CONFIG_PATH;
       this.client = await apiClient.createIPCClient(blockchainConfigPath);
       this.client.subscribe('app:block:new', async (block) => {
-        const pendigTipTransactionsIds = await this.tippingService.getIdsOfAllPendingTransactions();
-        this.updateTippingTransactions(pendigTipTransactionsIds);
+        this.updateTransactions();
         this.newBlockForged.emit('app:block:new', block);
       });
     }
   }
 
-  private updateTippingTransactions(pendigTipTransactionsIds: string[]): void {
+  private async updateTransactions(): Promise<void> {
+    this.updateTippingTransactions();
+    this.updateNFTtransactions();
+  }
+
+  private updateNFTtransactions(): void {
+    this.pendingNFTminting.forEach(async (tx) => {
+      const nft = await this.client.invoke('nft:getNFTByTxId', { id: tx.transactionId });
+      this.removeQueuedNFTtransaction(tx.transactionId);
+      if (nft) {
+        this.teacherLessonsService.updateNFTStatus(tx.lessonId, EnftMintingStatus.CONFIRMED, nft.id as string);
+      } else {
+        this.teacherLessonsService.updateNFTStatus(tx.lessonId, EnftMintingStatus.FAILED, null);
+      }
+    });
+  }
+
+  private removeQueuedNFTtransaction(transactionId: string): void {
+    this.pendingNFTminting = this.pendingNFTminting.filter((tx) => tx.transactionId !== transactionId);
+  }
+
+  private async updateTippingTransactions(): Promise<void> {
+    const pendigTipTransactionsIds = await this.tippingService.getIdsOfAllPendingTransactions();
     pendigTipTransactionsIds.forEach(async (pendigTipTransactionId) => {
       const transactionStatus = await this.client.invoke('app:getTransactionByID', { id: pendigTipTransactionId });
       if (transactionStatus) {
