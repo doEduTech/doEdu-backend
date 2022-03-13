@@ -1,3 +1,4 @@
+import { IFaucetTransaction } from './../../dist/blockchain/faucet/tip.interface.d';
 import { Injectable } from '@nestjs/common';
 
 import { apiClient, passphrase, cryptography, transactions } from '@liskhq/lisk-client';
@@ -9,11 +10,12 @@ import { UsersService } from './../core/users/users.service';
 import { IBlockchainAccount, IBlockchainAccountCredentials } from './blockchain.interfaces';
 import { DEDU_TOKEN_PREFIX } from '../constants';
 import { EventEmitter } from 'events';
-import { ITip } from './entities/tip.interface';
-import { TippingService } from './entities/tipping.service';
-import { TippingEntity } from './entities/tipping.entity';
+import { ITip } from './tipping/tip.interface';
+import { TippingService } from './tipping/tipping.service';
+import { TippingEntity } from './tipping/tipping.entity';
 import { TeacherLessonsService } from 'src/pages/teacher/teacher-lessons/teacher-lessons.service';
 import { EnftMintingStatus } from 'src/pages/teacher/teacher-lessons/nft-minting-status.enum';
+import { FaucetTransactionService } from './faucet/faucet-transaction.service';
 
 @Injectable()
 export class BlockchainService {
@@ -25,6 +27,7 @@ export class BlockchainService {
     private usersService: UsersService,
     private authService: AuthService,
     private tippingService: TippingService,
+    private faucetTransactionService: FaucetTransactionService,
     private teacherLessonsService: TeacherLessonsService
   ) {
     this.setClient();
@@ -86,12 +89,12 @@ export class BlockchainService {
   }
 
   // TODO: this function is for development and tests only - remove it on prod
-  public async getFaucetTokens(address: string): Promise<void> {
+  public async getFaucetTokens(address: string, recipientUserId: string): Promise<void> {
     if (!process.env.DEDU_FAUCET_PASSPHRASE) {
       throw new Error('DEDU Faucet service is not enabled.');
     }
 
-    const amount = BigInt(transactions.convertLSKToBeddows('10'));
+    const amount = BigInt(1000);
     const rawTx = {
       moduleID: 2,
       assetID: 0,
@@ -102,9 +105,20 @@ export class BlockchainService {
       }
     };
 
-    await this.client.transaction.send(
-      await this.client.transaction.create({ ...rawTx, fee: BigInt(0) }, process.env.DEDU_FAUCET_PASSPHRASE)
+    const transaction = await this.client.transaction.create(
+      { ...rawTx, fee: BigInt(0) },
+      process.env.DEDU_FAUCET_PASSPHRASE
     );
+    const pendingTransaction = await this.client.transaction.send(transaction);
+    this.createPendingFaucetTransaction({
+      recipient: recipientUserId,
+      transactionId: pendingTransaction.transactionId,
+      amount
+    });
+  }
+
+  private createPendingFaucetTransaction(faucetTransactionData: IFaucetTransaction): void {
+    this.faucetTransactionService.savePendingTransaction(faucetTransactionData as unknown as TippingEntity);
   }
 
   public async initializeAccount(
@@ -168,9 +182,10 @@ export class BlockchainService {
     }
   }
 
-  private async updateTransactions(): Promise<void> {
+  private updateTransactions(): void {
     this.updateTippingTransactions();
     this.updateNFTtransactions();
+    this.updateFaucetTransactions();
   }
 
   private updateNFTtransactions(): void {
@@ -187,6 +202,16 @@ export class BlockchainService {
 
   private removeQueuedNFTtransaction(transactionId: string): void {
     this.pendingNFTminting = this.pendingNFTminting.filter((tx) => tx.transactionId !== transactionId);
+  }
+
+  private async updateFaucetTransactions(): Promise<void> {
+    const pendigFaucetTransactionsIds = await this.faucetTransactionService.getIdsOfAllPendingTransactions();
+    pendigFaucetTransactionsIds.forEach(async (pendigFaucetTransactionId) => {
+      const transactionStatus = await this.client.invoke('app:getTransactionByID', { id: pendigFaucetTransactionId });
+      if (transactionStatus) {
+        this.faucetTransactionService.confirmTransaction(pendigFaucetTransactionId);
+      }
+    });
   }
 
   private async updateTippingTransactions(): Promise<void> {

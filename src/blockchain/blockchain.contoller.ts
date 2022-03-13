@@ -29,7 +29,7 @@ export class BlockchainController {
   @UseGuards(JwtAuthGuard)
   @Get('get-faucet-tokens')
   async getFaucetTokens(@Request() req): Promise<void> {
-    return this.blockchainService.getFaucetTokens(req.user.blockchainAddress);
+    return this.blockchainService.getFaucetTokens(req.user.blockchainAddress, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
