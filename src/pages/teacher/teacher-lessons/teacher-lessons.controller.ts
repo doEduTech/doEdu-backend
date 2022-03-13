@@ -16,7 +16,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { BlockchainService } from 'src/blockchain/blockchain.service';
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
 import { IPFSClientService } from 'src/ipfs/ipfs-client.service';
-import { ENFTMintingStatus } from './nft-minting-status.enum';
+import { EnftMintingStatus } from './nft-minting-status.enum';
 import { TeacherLessonEntity } from './teacher-lesson.entity';
 import { ITeacherLesson } from './teacher-lesson.interface';
 import { TeacherLessonsService } from './teacher-lessons.service';
@@ -24,7 +24,7 @@ import { TeacherLessonsService } from './teacher-lessons.service';
 @Controller('teacher/lessons')
 export class TeacherLessonsController {
   constructor(
-    private ipflClientService: IPFSClientService,
+    private ipfsClientService: IPFSClientService,
     private teacherLessonsService: TeacherLessonsService,
     private blockchainService: BlockchainService
   ) {}
@@ -44,11 +44,11 @@ export class TeacherLessonsController {
   ) {
     const fileType = this.teacherLessonsService.getFileType(files.content[0].mimetype);
 
-    const contentFileCID = await this.ipflClientService.upload(files.content[0]);
+    const contentFileCID = await this.ipfsClientService.upload(files.content[0]);
 
     let previewFileCID = null;
     if (files.preview) {
-      previewFileCID = await this.ipflClientService.upload(files.preview[0]);
+      previewFileCID = await this.ipfsClientService.upload(files.preview[0]);
     }
 
     const createNFT = body.createNFT === 'true';
@@ -59,7 +59,7 @@ export class TeacherLessonsController {
       description: body.description,
       author: req.user.id,
       type: fileType,
-      nftStatus: createNFT ? ENFTMintingStatus.PENDING : null
+      nftStatus: createNFT ? EnftMintingStatus.PENDING : null
     };
 
     const newLesson = await this.teacherLessonsService.saveLesson(lesson);
@@ -94,9 +94,9 @@ export class TeacherLessonsController {
       if (isNewPreviewDefined) {
         if (originalLesson.previewCID && body.preview === '') {
           updatedLessonFileds['previewCID'] = null;
-          this.ipflClientService.unpinFile(originalLesson.previewCID);
+          this.ipfsClientService.unpinFile(originalLesson.previewCID);
         } else if (files.preview) {
-          updatedLessonFileds['previewCID'] = await this.ipflClientService.upload(files.preview[0]);
+          updatedLessonFileds['previewCID'] = await this.ipfsClientService.upload(files.preview[0]);
         }
       }
       if (body.title !== originalLesson.title) {

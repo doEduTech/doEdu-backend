@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 import { UserEntity } from 'src/core/users/user.entity';
 import { ELessonType } from './lesson-type.enum';
-import { ENFTMintingStatus } from './nft-minting-status.enum';
+import { EnftMintingStatus } from './nft-minting-status.enum';
 
 @Entity('teacher_lesson')
 export class TeacherLessonEntity {
@@ -35,8 +35,8 @@ export class TeacherLessonEntity {
   @Column({ type: 'enum', enum: ELessonType })
   type: ELessonType;
 
-  @Column({ nullable: true, type: 'enum', enum: ENFTMintingStatus })
-  nftStatus: ENFTMintingStatus;
+  @Column({ nullable: true, type: 'enum', enum: EnftMintingStatus })
+  nftStatus: EnftMintingStatus;
 
   @ManyToOne(() => UserEntity, (author) => author.id, { onDelete: 'CASCADE' })
   author: UserEntity;

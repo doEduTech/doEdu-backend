@@ -13,7 +13,7 @@ import { ITip } from './entities/tip.interface';
 import { TippingService } from './entities/tipping.service';
 import { TippingEntity } from './entities/tipping.entity';
 import { TeacherLessonsService } from 'src/pages/teacher/teacher-lessons/teacher-lessons.service';
-import { ENFTMintingStatus } from 'src/pages/teacher/teacher-lessons/nft-minting-status.enum';
+import { EnftMintingStatus } from 'src/pages/teacher/teacher-lessons/nft-minting-status.enum';
 
 @Injectable()
 export class BlockchainService {
@@ -170,22 +170,22 @@ export class BlockchainService {
 
   private async updateTransactions(): Promise<void> {
     this.updateTippingTransactions();
-    this.updateNFTTransactions();
+    this.updateNFTtransactions();
   }
 
-  private updateNFTTransactions(): void {
+  private updateNFTtransactions(): void {
     this.pendingNFTminting.forEach(async (tx) => {
       const nft = await this.client.invoke('nft:getNFTByTxId', { id: tx.transactionId });
-      this.removeQueuedNFTTransaction(tx.transactionId);
+      this.removeQueuedNFTtransaction(tx.transactionId);
       if (nft) {
-        this.teacherLessonsService.updateNFTStatus(tx.lessonId, ENFTMintingStatus.CONFIRMED, nft.id as string);
+        this.teacherLessonsService.updateNFTStatus(tx.lessonId, EnftMintingStatus.CONFIRMED, nft.id as string);
       } else {
-        this.teacherLessonsService.updateNFTStatus(tx.lessonId, ENFTMintingStatus.FAILED, null);
+        this.teacherLessonsService.updateNFTStatus(tx.lessonId, EnftMintingStatus.FAILED, null);
       }
     });
   }
 
-  private removeQueuedNFTTransaction(transactionId: string): void {
+  private removeQueuedNFTtransaction(transactionId: string): void {
     this.pendingNFTminting = this.pendingNFTminting.filter((tx) => tx.transactionId !== transactionId);
   }
 
