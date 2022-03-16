@@ -8,7 +8,7 @@ import { TippingEntity } from 'src/blockchain/tipping/tipping.entity';
 import {
   ITransactionHistory,
   ITransactionHistoryType
-} from 'src/pages/learner/transactions-history/transaction-history.interface';
+} from 'src/pages/learner/transactions-history/learner-transaction-history.interface';
 
 @Injectable()
 export class TeacherTransactionsHistoryService {

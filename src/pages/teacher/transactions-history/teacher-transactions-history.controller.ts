@@ -1,8 +1,8 @@
 import { Controller, Request, Get, UseGuards, Query } from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/core/auth/guards/jwt-auth.guard';
-import { ITransactionHistory } from 'src/pages/learner/transactions-history/transaction-history.interface';
-import { TeacherTransactionsHistoryService } from './transactions-history.service';
+import { ITransactionHistory } from 'src/pages/learner/transactions-history/learner-transaction-history.interface';
+import { TeacherTransactionsHistoryService } from './teacher-transactions-history.service';
 
 @Controller('teacher/transactions-history')
 export class TeacherTransactionsHistoryController {

@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 
 import { FaucetTransactionEntity } from 'src/blockchain/faucet/faucet-transaction.entity';
 import { TippingEntity } from 'src/blockchain/tipping/tipping.entity';
-import { ITransactionHistory, ITransactionHistoryType } from './transaction-history.interface';
+import { ITransactionHistory, ITransactionHistoryType } from './learner-transaction-history.interface';
 
 @Injectable()
 export class LearnerTransactionsHistoryService {

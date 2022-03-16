@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { FaucetTransactionEntity } from 'src/blockchain/faucet/faucet-transaction.entity';
 import { TippingEntity } from 'src/blockchain/tipping/tipping.entity';
-import { TeacherTransactionsHistoryController } from './transactions-history.controller';
-import { TeacherTransactionsHistoryService } from './transactions-history.service';
+import { TeacherTransactionsHistoryController } from './teacher-transactions-history.controller';
+import { TeacherTransactionsHistoryService } from './teacher-transactions-history.service';
 
 const entitiesComponents = [FaucetTransactionEntity, TippingEntity];
 
@@ -13,4 +13,4 @@ const entitiesComponents = [FaucetTransactionEntity, TippingEntity];
   controllers: [TeacherTransactionsHistoryController],
   providers: [TeacherTransactionsHistoryService]
 })
-export class TransactionsHistoryModule {}
+export class TeacherTransactionsHistoryModule {}

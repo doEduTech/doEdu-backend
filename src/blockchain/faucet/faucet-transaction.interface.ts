@@ -4,6 +4,6 @@ export interface IFaucetTransaction {
   created?: string;
   updated?: string;
   recipient: string;
-  amount: number;
+  amount: BigInt;
   status?: 'pending' | 'confirmed' | 'failed';
 }
