@@ -5,6 +5,10 @@ import { Repository } from 'typeorm';
 
 import { FaucetTransactionEntity } from 'src/blockchain/faucet/faucet-transaction.entity';
 import { TippingEntity } from 'src/blockchain/tipping/tipping.entity';
+import {
+  ITransactionHistory,
+  ITransactionHistoryType
+} from 'src/pages/learner/transactions-history/transaction-history.interface';
 
 @Injectable()
 export class TeacherTransactionsHistoryService {
@@ -15,7 +19,7 @@ export class TeacherTransactionsHistoryService {
     private tippingRepository: Repository<TippingEntity>
   ) {}
 
-  public async findAll(userId: string) {
+  public async findAll(userId: string): Promise<ITransactionHistory[]> {
     const recievedTippingTransactionsRecords = await this.tippingRepository.find({
       where: { status: 'confirmed', recipient: userId }
     });
@@ -24,7 +28,7 @@ export class TeacherTransactionsHistoryService {
         id: tx.id,
         amount: tx.amount,
         timestamp: tx.statusUpdate,
-        type: 'tip'
+        type: 'tip' as ITransactionHistoryType
       };
     });
 
@@ -36,7 +40,7 @@ export class TeacherTransactionsHistoryService {
         id: tx.id,
         amount: -tx.amount,
         timestamp: tx.statusUpdate,
-        type: 'tip'
+        type: 'tip' as ITransactionHistoryType
       };
     });
 
@@ -48,7 +52,7 @@ export class TeacherTransactionsHistoryService {
         id: tx.id,
         amount: tx.amount,
         timestamp: tx.statusUpdate,
-        type: 'faucet'
+        type: 'faucet' as ITransactionHistoryType
       };
     });
     return [...recievedTipTxs, ...givenTipTxs, ...faucetTxs];

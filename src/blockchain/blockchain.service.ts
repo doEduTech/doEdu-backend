@@ -1,7 +1,6 @@
-import { IFaucetTransaction } from './../../dist/blockchain/faucet/tip.interface.d';
 import { Injectable } from '@nestjs/common';
 
-import { apiClient, passphrase, cryptography, transactions } from '@liskhq/lisk-client';
+import { apiClient, passphrase, cryptography } from '@liskhq/lisk-client';
 import { APIClient } from '@liskhq/lisk-api-client/dist-node/api_client';
 
 import { IUser } from './../core/users/user.interface';
@@ -16,6 +15,7 @@ import { TippingEntity } from './tipping/tipping.entity';
 import { TeacherLessonsService } from 'src/pages/teacher/teacher-lessons/teacher-lessons.service';
 import { EnftMintingStatus } from 'src/pages/teacher/teacher-lessons/nft-minting-status.enum';
 import { FaucetTransactionService } from './faucet/faucet-transaction.service';
+import { IFaucetTransaction } from './faucet/faucet-transaction.interface';
 
 @Injectable()
 export class BlockchainService {
