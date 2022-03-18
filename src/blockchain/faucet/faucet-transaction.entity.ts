@@ -1,14 +1,10 @@
-import { UserEntity } from 'src/core/users/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
-export enum ETransactionStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  FAILED = 'failed'
-}
+import { UserEntity } from 'src/core/users/user.entity';
+import { ETransactionStatus } from '../transaction-status.enum';
 
-@Entity('tipping')
-export class TippingEntity {
+@Entity('faucet_transaction')
+export class FaucetTransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,9 +19,6 @@ export class TippingEntity {
 
   @Column({ nullable: false })
   amount: number;
-
-  @ManyToOne(() => UserEntity, (sender) => sender.id, { onDelete: 'CASCADE' })
-  sender: UserEntity;
 
   @ManyToOne(() => UserEntity, (recipient) => recipient.id, { onDelete: 'CASCADE' })
   recipient: UserEntity;

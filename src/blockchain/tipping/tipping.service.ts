@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
-import { ETransactionStatus, TippingEntity } from './tipping.entity';
+import { ETransactionStatus } from '../transaction-status.enum';
+import { TippingEntity } from './tipping.entity';
 
 @Injectable()
 export class TippingService {
