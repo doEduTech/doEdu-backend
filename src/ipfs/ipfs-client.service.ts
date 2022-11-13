@@ -5,8 +5,7 @@ import { create } from 'ipfs-http-client';
 @Injectable()
 export class IPFSClientService {
   private client = create({
-    protocol: 'http',
-    port: 5001
+    url: '/ip4/127.0.0.1/tcp/5001'
   });
 
   public async upload(file: Express.Multer.File): Promise<string> {
